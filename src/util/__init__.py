@@ -4,6 +4,15 @@ from abc import ABC, abstractmethod
 from nvitop import NaType
 
 @dataclass(kw_only=True)
+class CPUinfo:
+    name: str
+    usage: int | NaType
+    clock: int | NaType
+    temperature: float | NaType
+    core_count: int | NaType
+    thread_count: int | NaType
+
+@dataclass(kw_only=True)
 class GPUMEMinfo:
     clock: int | NaType
     total: int | NaType
@@ -28,3 +37,16 @@ class GPU(ABC):
     @abstractmethod
     def get_gpu_info(self) -> GPUinfo:
         ...
+
+
+@dataclass(kw_only=True)
+class DiskIOinfo:
+    read_bytes: int | NaType
+    write_bytes: int | NaType
+
+@dataclass(kw_only=True)
+class Volumeinfo:
+    name: str
+    filesystem: str
+    total: int
+    free: int
