@@ -5,6 +5,7 @@ import re
 import importlib
 import subprocess
 import sys
+import shutil
 
 import psutil
 from nvitop import NA
@@ -115,7 +116,7 @@ def _score_temp_label(label: str) -> int:
 
 def _get_cpu_temperature_celsius() -> float:
     try:
-        temps = psutil.sensors_temperatures(fahrenheit=False)
+        temps = psutil.sensors_temperatures(fahrenheit=False) # type: ignore
     except Exception:
         temps = None
 
@@ -136,6 +137,11 @@ def _get_cpu_temperature_celsius() -> float:
         if candidates:
             candidates.sort(key=lambda x: (x[0], x[1]))
             return candidates[-1][1]
+
+    if sys.platform.startswith("win"):
+        best = _get_cpu_temperature_windows_acpi()
+        if best is not None:
+            return best
 
     if sys.platform.startswith("linux"):
         base = "/sys/class/thermal"
@@ -171,6 +177,46 @@ def _get_cpu_temperature_celsius() -> float:
             return best
 
     return math.nan
+
+
+def _get_cpu_temperature_windows_acpi() -> float | None:
+    exe = shutil.which("powershell") or shutil.which("pwsh")
+    if not exe:
+        return None
+
+    perf_cmd = (
+        "$ErrorActionPreference='SilentlyContinue';"
+        "Get-CimInstance -Namespace root/cimv2 -ClassName Win32_PerfFormattedData_Counters_ThermalZoneInformation "
+        "| ForEach-Object { if ($_.HighPrecisionTemperature) { $_.HighPrecisionTemperature } else { $_.Temperature } }"
+    )
+
+    for _ in range(2):
+        try:
+            p = subprocess.run(
+                [exe, "-NoProfile", "-Command", perf_cmd],
+                capture_output=True,
+                text=True,
+                timeout=2.0,
+            )
+        except Exception:
+            continue
+
+        candidates: list[float] = []
+        for token in (p.stdout or "").split():
+            try:
+                raw_f = float(token.strip())
+            except Exception:
+                continue
+            if raw_f <= 0:
+                continue
+            c = raw_f / 10.0 - 273.15 if raw_f >= 1000.0 else raw_f - 273.15
+            if math.isfinite(c) and (-20.0 <= c <= 130.0):
+                candidates.append(c)
+
+        if candidates:
+            return max(candidates)
+
+    return None
 
 
 def _get_cpu_clock_mhz() -> int:
@@ -211,6 +257,8 @@ class CPUtop:
         temperature = float(_get_cpu_temperature_celsius())
         if not math.isfinite(temperature):
             temperature = NA
+        else:
+            temperature = round(temperature, 2)
 
         core_count = int(psutil.cpu_count(logical=False) or 0)
         if core_count <= 0:
