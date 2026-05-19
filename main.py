@@ -1,5 +1,13 @@
-from src.util.gputop import NvidiaGPU
+import uvicorn
 
-gpu = NvidiaGPU()
+from src.api import app
 
-print(gpu.get_gpu_info())
+def main():
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=8000,
+    )
+
+if __name__ == "__main__":
+    main()

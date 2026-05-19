@@ -50,3 +50,7 @@ class Volumeinfo:
     filesystem: str
     total: int
     free: int
+
+@dataclass(kw_only=True)
+class Systeminfo:
+    cpu: CPUinfo

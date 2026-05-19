@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>萌系硬件监控看板</title>
+    <title>{{ title }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -360,19 +360,6 @@
             opacity: 0.6;
         }
 
-        .footer-bar .heart {
-            color: var(--accent-pink);
-            display: inline-block;
-            animation: heartbeat 1.5s ease-in-out infinite;
-        }
-
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            15% { transform: scale(1.3); }
-            30% { transform: scale(1); }
-            45% { transform: scale(1.15); }
-        }
-
         /* 响应式 */
         @media (max-width: 768px) {
             .header h1 { font-size: 1.8rem; }
@@ -425,7 +412,7 @@
         <!-- 头部 -->
         <header class="header">
             <h1>
-                萌系硬件监控看板
+                {{ title }}
             </h1>
         </header>
 
@@ -444,7 +431,7 @@
                 </div>
 
                 <div class="big-number">
-                    N/A<span class="unit">% 占用</span>
+                    N/A<span class="unit">% 使用率</span>
                 </div>
 
                 <div class="progress-container">
@@ -477,7 +464,7 @@
                 </div>
 
                 <div class="chart-placeholder">
-                    CPU 历史曲线图 (N/A)
+                    CPU 使用率趋势 (N/A)
                 </div>
             </div>
 
@@ -508,11 +495,11 @@
 
                 <div class="details-grid">
                     <div class="detail-item">
-                        <div class="detail-label">可用</div>
+                        <div class="detail-label">总量</div>
                         <div class="detail-value">N/A GB</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">总量</div>
+                        <div class="detail-label">可用</div>
                         <div class="detail-value">N/A GB</div>
                     </div>
                     <div class="detail-item">
@@ -526,7 +513,7 @@
                 </div>
 
                 <div class="chart-placeholder">
-                    内存使用趋势 (N/A)
+                    内存使用率趋势 (N/A)
                 </div>
             </div>
 
@@ -561,21 +548,21 @@
                         <div class="detail-value">N/A GB</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">空闲</div>
+                        <div class="detail-label">可用</div>
                         <div class="detail-value">N/A GB</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">页面入</div>
+                        <div class="detail-label">换入</div>
                         <div class="detail-value">N/A</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">页面出</div>
+                        <div class="detail-label">换出</div>
                         <div class="detail-value">N/A</div>
                     </div>
                 </div>
 
                 <div class="chart-placeholder">
-                    交换空间使用 (N/A)
+                    虚拟内存使用率趋势 (N/A)
                 </div>
             </div>
 
@@ -591,7 +578,7 @@
                 </div>
 
                 <div class="big-number">
-                    N/A<span class="unit">% 占用</span>
+                    N/A<span class="unit">% 使用率</span>
                 </div>
 
                 <div class="progress-container">
@@ -624,7 +611,7 @@
                 </div>
 
                 <div class="chart-placeholder">
-                    GPU 负载历史 (N/A)
+                    GPU 使用率趋势 (N/A)
                 </div>
             </div>
 
@@ -737,7 +724,7 @@
                     </div>
                 </div>
                 <div class="chart-placeholder">
-                    卷读写趋势 (N/A)
+                    磁盘读写趋势 (N/A)
                 </div>
             </div>
 
@@ -745,8 +732,8 @@
 
         <!-- 底部 -->
         <div class="footer-bar">
-            <p>Made with <span class="heart">💖</span> · 萌系硬件监控看板 · 所有数据均为实时动态获取</p>
-            <p style="margin-top: 5px; font-size: 0.75rem;">🌸 当前状态: 数据连接中... 请稍候 🌸</p>
+            <p>Made with Azusa Mikan · {{ title }} · 数据来自系统实时采样</p>
+            <p style="margin-top: 5px; font-size: 0.75rem;">当前状态：数据连接中… 请稍候</p>
         </div>
     </div>
     <script>
