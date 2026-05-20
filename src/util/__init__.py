@@ -7,10 +7,18 @@ from nvitop import NaType
 class CPUinfo:
     name: str
     usage: int | NaType
-    clock: int | NaType
+    clock: float | NaType
     temperature: float | NaType
     core_count: int | NaType
     thread_count: int | NaType
+
+@dataclass(kw_only=True)
+class MEMinfo:
+    total: float
+    available: float
+    used: float
+    type: str | NaType
+    speed: int | NaType
 
 @dataclass(kw_only=True)
 class GPUMEMinfo:
@@ -54,3 +62,4 @@ class Volumeinfo:
 @dataclass(kw_only=True)
 class Systeminfo:
     cpu: CPUinfo
+    mem: MEMinfo

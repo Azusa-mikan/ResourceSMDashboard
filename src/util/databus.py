@@ -1,4 +1,4 @@
-from queue import Queue
+from asyncio import Queue
 
 from src.util import Systeminfo
 

@@ -1,8 +1,20 @@
-import uuid
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from fastapi import APIRouter
+from src.util.wsmanager import ConnectionManager
 
 ws = APIRouter(prefix="/ws", tags=["websocket"])
 
-users: set[uuid.UUID] = set()
+manager = ConnectionManager()
 
+@ws.websocket("/sysinfo")
+async def ws_sysinfo(ws: WebSocket):
+    await manager.connect(ws)
+    try:
+        while True:
+            msg = await ws.receive()
+            if msg.get("type") == "websocket.disconnect":
+                break
+    except WebSocketDisconnect:
+        pass
+    finally:
+        manager.disconnect(ws)

@@ -34,6 +34,7 @@
             color: var(--text-primary);
             min-height: 100vh;
             overflow-x: hidden;
+            zoom: 125%;
         }
 
         /* 背景装饰 */
@@ -213,6 +214,17 @@
             font-weight: 700;
         }
 
+        .card-subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 520px;
+        }
+
         /* 大数字显示 */
         .big-number {
             font-size: 3rem;
@@ -334,6 +346,44 @@
             background: linear-gradient(to top, rgba(255,107,157,0.05), transparent);
         }
 
+        .chart-line {
+            justify-content: stretch;
+            align-items: stretch;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chart-overlay {
+            position: absolute;
+            top: 10px;
+            left: 12px;
+            right: 12px;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 12px;
+            color: rgba(184, 184, 209, 0.95);
+            font-size: 0.85rem;
+            pointer-events: none;
+            z-index: 2;
+            text-shadow: 0 0 10px rgba(0,0,0,0.25);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chart-overlay .right {
+            opacity: 0.9;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
         /* 颜色主题 */
         .theme-pink .big-number { color: var(--accent-pink); }
         .theme-pink .progress-bar-fill { background: linear-gradient(90deg, var(--accent-pink), #ff8fab); }
@@ -429,42 +479,46 @@
                         <span>CPU 处理器</span>
                     </div>
                 </div>
+                <div class="card-subtitle" id="cpu-name">N/A</div>
 
                 <div class="big-number">
-                    N/A<span class="unit">% 使用率</span>
+                    <span id="cpu-usage">N/A</span><span class="unit">% 使用率</span>
                 </div>
 
                 <div class="progress-container">
                     <div class="progress-label">
                         <span>平均使用率</span>
-                        <span>N/A%</span>
+                        <span id="cpu-usage-label">N/A</span>
                     </div>
                     <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: 0%"></div>
+                        <div class="progress-bar-fill" id="cpu-usage-bar" style="width: 0%"></div>
                     </div>
                 </div>
 
                 <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label">温度</div>
-                        <div class="detail-value">N/A°C</div>
+                        <div class="detail-value" id="cpu-temperature">N/A</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">频率</div>
-                        <div class="detail-value">N/A GHz</div>
+                        <div class="detail-value" id="cpu-clock">N/A</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">核心数</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value" id="cpu-core-count">N/A</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">线程数</div>
-                        <div class="detail-value">N/A</div>
+                        <div class="detail-value" id="cpu-thread-count">N/A</div>
                     </div>
                 </div>
 
-                <div class="chart-placeholder">
-                    CPU 使用率趋势 (N/A)
+                <div class="chart-placeholder chart-line" id="cpu-trend-placeholder">
+                    <canvas class="chart-canvas" id="cpu-usage-trend" aria-label="CPU usage trend"></canvas>
+                    <div class="chart-overlay">
+                        <span id="cpu-trend-title">CPU 使用率趋势</span>
+                    </div>
                 </div>
             </div>
 
@@ -475,45 +529,49 @@
 
                 <div class="card-header">
                     <div class="card-title">
-                        <span>内存 (RAM)</span>
+                        <span>RAM 内存</span>
                     </div>
                 </div>
+                <div class="card-subtitle" id="mem-name">N/A</div>
 
                 <div class="big-number">
-                    N/A<span class="unit">GB 已用</span>
+                    <span id="mem-used">N/A</span><span class="unit"> GB 已用</span>
                 </div>
 
                 <div class="progress-container">
                     <div class="progress-label">
                         <span>平均使用率</span>
-                        <span>N/A%</span>
+                        <span id="mem-usage-label">N/A</span>
                     </div>
                     <div class="progress-bar-bg">
-                        <div class="progress-bar-fill" style="width: 0%"></div>
+                        <div class="progress-bar-fill" id="mem-usage-bar" style="width: 0%"></div>
                     </div>
                 </div>
 
                 <div class="details-grid">
                     <div class="detail-item">
                         <div class="detail-label">总量</div>
-                        <div class="detail-value">N/A GB</div>
+                        <div class="detail-value" id="mem-total">N/A</div>
                     </div>
                     <div class="detail-item">
                         <div class="detail-label">可用</div>
-                        <div class="detail-value">N/A GB</div>
+                        <div class="detail-value" id="mem-available">N/A</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">缓存</div>
-                        <div class="detail-value">N/A GB</div>
+                        <div class="detail-label">代数</div>
+                        <div class="detail-value" id="mem-type">N/A</div>
                     </div>
                     <div class="detail-item">
-                        <div class="detail-label">缓冲区</div>
-                        <div class="detail-value">N/A GB</div>
+                        <div class="detail-label">频率</div>
+                        <div class="detail-value" id="mem-speed">N/A</div>
                     </div>
                 </div>
 
-                <div class="chart-placeholder">
-                    内存使用率趋势 (N/A)
+                <div class="chart-placeholder chart-line" id="mem-trend-placeholder">
+                    <canvas class="chart-canvas" id="mem-usage-trend" aria-label="Memory usage trend"></canvas>
+                    <div class="chart-overlay">
+                        <span id="mem-trend-title">内存 使用率趋势</span>
+                    </div>
                 </div>
             </div>
 
@@ -524,9 +582,10 @@
 
                 <div class="card-header">
                     <div class="card-title">
-                        <span>虚拟内存</span>
+                        <span>SWAP 虚拟内存</span>
                     </div>
                 </div>
+                <div class="card-subtitle">N/A</div>
 
                 <div class="big-number">
                     N/A<span class="unit">GB 已用</span>
@@ -562,7 +621,7 @@
                 </div>
 
                 <div class="chart-placeholder">
-                    虚拟内存使用率趋势 (N/A)
+                    虚拟内存 使用率趋势 (N/A)
                 </div>
             </div>
 
@@ -576,6 +635,7 @@
                         <span>GPU 显卡</span>
                     </div>
                 </div>
+                <div class="card-subtitle">N/A</div>
 
                 <div class="big-number">
                     N/A<span class="unit">% 使用率</span>
@@ -733,7 +793,7 @@
         <!-- 底部 -->
         <div class="footer-bar">
             <p>Made with Azusa Mikan · {{ title }} · 数据来自系统实时采样</p>
-            <p style="margin-top: 5px; font-size: 0.75rem;">当前状态：数据连接中… 请稍候</p>
+            <p id="ws-status" style="margin-top: 5px; font-size: 0.75rem;">当前状态：连接中</p>
         </div>
     </div>
     <script>
@@ -744,16 +804,26 @@
             const trailChars = ['❄', '✻', '✦', '⋆', '✧', '·'];
             let lastTrailAt = 0;
 
+            const getPageZoom = () => {
+                const zoom = getComputedStyle(document.body).zoom;
+                const n = Number.parseFloat(zoom);
+                if (!Number.isFinite(n) || n === 0) return 1;
+                return typeof zoom === 'string' && zoom.includes('%') ? n / 100 : n;
+            };
+
             document.addEventListener('mousemove', (e) => {
                 const now = performance.now();
                 if (now - lastTrailAt < 24) return;
                 lastTrailAt = now;
 
+                const pageZoom = getPageZoom();
+                const jitterX = (Math.random() * 10 - 5) / pageZoom;
+                const jitterY = (Math.random() * 10 - 5) / pageZoom;
                 const trail = document.createElement('span');
                 trail.className = 'cursor-trail';
                 trail.textContent = trailChars[Math.floor(Math.random() * trailChars.length)];
-                trail.style.left = `${e.clientX + (Math.random() * 10 - 5)}px`;
-                trail.style.top = `${e.clientY + (Math.random() * 10 - 5)}px`;
+                trail.style.left = `${e.clientX / pageZoom + jitterX}px`;
+                trail.style.top = `${e.clientY / pageZoom + jitterY}px`;
                 trail.style.fontSize = `${(Math.random() * 0.45 + 0.45).toFixed(2)}rem`;
                 trail.style.setProperty('--trail-opacity', (Math.random() * 0.25 + 0.7).toFixed(2));
                 trail.style.setProperty('--drift-x', `${(Math.random() * 20 - 10).toFixed(1)}px`);
@@ -761,6 +831,448 @@
                 document.body.appendChild(trail);
                 trail.addEventListener('animationend', () => trail.remove(), { once: true });
             }, { passive: true });
+        })();
+
+        (() => {
+            const elWsStatus = document.getElementById('ws-status');
+            const elCpuName = document.getElementById('cpu-name');
+            const elCpuUsage = document.getElementById('cpu-usage');
+            const elCpuUsageLabel = document.getElementById('cpu-usage-label');
+            const elCpuUsageBar = document.getElementById('cpu-usage-bar');
+            const elCpuTemp = document.getElementById('cpu-temperature');
+            const elCpuClock = document.getElementById('cpu-clock');
+            const elCpuCoreCount = document.getElementById('cpu-core-count');
+            const elCpuThreadCount = document.getElementById('cpu-thread-count');
+            const elCpuTrend = document.getElementById('cpu-trend-placeholder');
+            const elMemUsed = document.getElementById('mem-used');
+            const elMemUsageLabel = document.getElementById('mem-usage-label');
+            const elMemUsageBar = document.getElementById('mem-usage-bar');
+            const elMemTotal = document.getElementById('mem-total');
+            const elMemAvailable = document.getElementById('mem-available');
+            const elMemName = document.getElementById('mem-name');
+            const elMemType = document.getElementById('mem-type');
+            const elMemSpeed = document.getElementById('mem-speed');
+
+            const isNA = (v) => v === 'N/A' || v === null || v === undefined;
+            const toFiniteNumber = (v) => {
+                if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+                if (typeof v === 'string') {
+                    const n = Number(v);
+                    return Number.isFinite(n) ? n : null;
+                }
+                return null;
+            };
+            const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+            const setText = (el, text) => {
+                if (!el) return;
+                el.textContent = text;
+            };
+
+            const setWsStatus = (text) => {
+                if (!elWsStatus) return;
+                setText(elWsStatus, `当前状态：${text}`);
+            };
+
+            const createLineChart = (container, canvas, opts) => {
+                const options = opts && typeof opts === 'object' ? opts : {};
+                const ctx = canvas?.getContext?.('2d') || null;
+                if (!container || !canvas || !ctx) {
+                    return {
+                        setSeries: () => {},
+                        clear: () => {},
+                        destroy: () => {},
+                    };
+                }
+
+                let series = [];
+                let dpr = 1;
+                let rafId = 0;
+                let ro = null;
+
+                const stroke = options.stroke || '#ff6b9d';
+                const fill = options.fill || 'rgba(255, 107, 157, 0.16)';
+                const grid = options.grid || 'rgba(255, 255, 255, 0.06)';
+                const minY = Number.isFinite(options.minY) ? options.minY : 0;
+                const maxY = Number.isFinite(options.maxY) ? options.maxY : 100;
+                const paddingX = Number.isFinite(options.paddingX) ? options.paddingX : 10;
+                const paddingY = Number.isFinite(options.paddingY) ? options.paddingY : 10;
+                const resize = () => {
+                    const rect = container.getBoundingClientRect();
+                    const w = Math.max(0, Math.floor(rect.width));
+                    const h = Math.max(0, Math.floor(rect.height));
+                    dpr = Math.max(1, Math.min(3, Math.floor(window.devicePixelRatio || 1)));
+                    const targetW = Math.max(1, Math.floor(w * dpr));
+                    const targetH = Math.max(1, Math.floor(h * dpr));
+                    if (canvas.width === targetW && canvas.height === targetH) return;
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                };
+
+                const schedule = () => {
+                    if (rafId) return;
+                    rafId = requestAnimationFrame(() => {
+                        rafId = 0;
+                        render();
+                    });
+                };
+
+                const clear = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                };
+
+                const renderGrid = (w, h) => {
+                    ctx.save();
+                    ctx.strokeStyle = grid;
+                    ctx.lineWidth = 1 * dpr;
+                    ctx.beginPath();
+                    const lines = 4;
+                    for (let i = 1; i < lines; i += 1) {
+                        const y = paddingY * dpr + (i * (h - 2 * paddingY * dpr)) / lines;
+                        ctx.moveTo(paddingX * dpr, y);
+                        ctx.lineTo(w - paddingX * dpr, y);
+                    }
+                    ctx.stroke();
+                    ctx.restore();
+                };
+
+                const renderLine = (w, h) => {
+                    if (!series.length) return;
+                    const left = paddingX * dpr;
+                    const right = w - paddingX * dpr;
+                    const top = paddingY * dpr;
+                    const bottom = h - paddingY * dpr;
+                    const spanX = Math.max(1, right - left);
+                    const spanY = Math.max(1, bottom - top);
+                    const n = series.length;
+                    const denom = Math.max(1, n - 1);
+
+                    const px = (i) => left + (i * spanX) / denom;
+                    const py = (v) => {
+                        const t = (v - minY) / Math.max(1e-6, maxY - minY);
+                        const clamped = Math.max(0, Math.min(1, t));
+                        return bottom - clamped * spanY;
+                    };
+
+                    ctx.save();
+                    ctx.lineJoin = 'round';
+                    ctx.lineCap = 'round';
+
+                    ctx.beginPath();
+                    for (let i = 0; i < n; i += 1) {
+                        const x = px(i);
+                        const y = py(series[i]);
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    const lastX = px(n - 1);
+                    ctx.lineTo(lastX, bottom);
+                    ctx.lineTo(left, bottom);
+                    ctx.closePath();
+                    ctx.fillStyle = fill;
+                    ctx.fill();
+
+                    ctx.beginPath();
+                    for (let i = 0; i < n; i += 1) {
+                        const x = px(i);
+                        const y = py(series[i]);
+                        if (i === 0) ctx.moveTo(x, y);
+                        else ctx.lineTo(x, y);
+                    }
+                    ctx.strokeStyle = stroke;
+                    ctx.lineWidth = 2 * dpr;
+                    ctx.stroke();
+                    ctx.restore();
+                };
+
+                const render = () => {
+                    const w = canvas.width;
+                    const h = canvas.height;
+                    clear();
+                    renderGrid(w, h);
+                    renderLine(w, h);
+                };
+
+                const setSeries = (arr) => {
+                    if (!Array.isArray(arr)) {
+                        series = [];
+                        schedule();
+                        return;
+                    }
+                    const next = [];
+                    for (let i = 0; i < arr.length; i += 1) {
+                        const v = arr[i];
+                        if (typeof v === 'number' && Number.isFinite(v)) next.push(v);
+                    }
+                    series = next;
+                    schedule();
+                };
+
+                const destroy = () => {
+                    if (rafId) {
+                        cancelAnimationFrame(rafId);
+                        rafId = 0;
+                    }
+                    try {
+                        ro?.disconnect?.();
+                    } catch {
+                    }
+                    ro = null;
+                };
+
+                resize();
+                schedule();
+                try {
+                    ro = new ResizeObserver(() => {
+                        resize();
+                        schedule();
+                    });
+                    ro.observe(container);
+                } catch {
+                }
+
+                return { setSeries, clear, destroy };
+            };
+
+            const avgWindowSize = 30;
+            const trendWindowSize = 30;
+            const usageSamples = [];
+            const memUsageSamples = [];
+
+            const addUsageSample = (usage) => {
+                usageSamples.push(usage);
+                if (usageSamples.length > trendWindowSize) usageSamples.splice(0, usageSamples.length - trendWindowSize);
+            };
+
+            const addMemUsageSample = (usage) => {
+                memUsageSamples.push(usage);
+                if (memUsageSamples.length > trendWindowSize) memUsageSamples.splice(0, memUsageSamples.length - trendWindowSize);
+            };
+
+            const calcAvgUsage = () => {
+                if (!usageSamples.length) return null;
+                const start = Math.max(0, usageSamples.length - avgWindowSize);
+                let sum = 0;
+                let count = 0;
+                for (let i = start; i < usageSamples.length; i += 1) {
+                    sum += usageSamples[i];
+                    count += 1;
+                }
+                return count ? sum / count : null;
+            };
+
+            const calcMemAvgUsage = () => {
+                if (!memUsageSamples.length) return null;
+                const start = Math.max(0, memUsageSamples.length - avgWindowSize);
+                let sum = 0;
+                let count = 0;
+                for (let i = start; i < memUsageSamples.length; i += 1) {
+                    sum += memUsageSamples[i];
+                    count += 1;
+                }
+                return count ? sum / count : null;
+            };
+
+            const elCpuTrendContainer = document.getElementById('cpu-trend-placeholder');
+            const elCpuTrendCanvas = document.getElementById('cpu-usage-trend');
+            const elCpuTrendTitle = document.getElementById('cpu-trend-title');
+            const elCpuTrendMeta = document.getElementById('cpu-trend-meta');
+            const cpuTrendChart = createLineChart(elCpuTrendContainer, elCpuTrendCanvas, {
+                minY: 0,
+                maxY: 100,
+                stroke: '#ff6b9d',
+                fill: 'rgba(255, 107, 157, 0.16)',
+                grid: 'rgba(255, 255, 255, 0.06)',
+                paddingX: 12,
+                paddingY: 14,
+            });
+
+            const elMemTrendContainer = document.getElementById('mem-trend-placeholder');
+            const elMemTrendCanvas = document.getElementById('mem-usage-trend');
+            const elMemTrendTitle = document.getElementById('mem-trend-title');
+            const memTrendChart = createLineChart(elMemTrendContainer, elMemTrendCanvas, {
+                minY: 0,
+                maxY: 100,
+                stroke: '#4ecdc4',
+                fill: 'rgba(78, 205, 196, 0.16)',
+                grid: 'rgba(255, 255, 255, 0.06)',
+                paddingX: 12,
+                paddingY: 14,
+            });
+
+            const renderCpu = (cpu) => {
+                if (!cpu || typeof cpu !== 'object') return;
+
+                if (typeof cpu.name === 'string' && cpu.name.trim()) {
+                    setText(elCpuName, cpu.name.trim());
+                }
+
+                const usageN = isNA(cpu.usage) ? null : toFiniteNumber(cpu.usage);
+                if (usageN === null) {
+                    usageSamples.splice(0, usageSamples.length);
+                    cpuTrendChart.setSeries([]);
+                    setText(elCpuUsage, 'N/A');
+                    setText(elCpuUsageLabel, 'N/A');
+                    if (elCpuUsageBar) elCpuUsageBar.style.width = '0%';
+                    setText(elCpuTrendTitle, 'CPU 使用率趋势');
+                    setText(elCpuTrendMeta, 'N/A');
+                } else {
+                    const currentUsage = clamp(usageN, 0, 100);
+                    addUsageSample(currentUsage);
+                    const avg = calcAvgUsage();
+                    const avgUsage = avg === null ? null : clamp(Math.round(avg), 0, 100);
+                    cpuTrendChart.setSeries(usageSamples);
+
+                    setText(elCpuUsage, String(currentUsage));
+                    if (avgUsage === null) {
+                        setText(elCpuUsageLabel, 'N/A');
+                        if (elCpuUsageBar) elCpuUsageBar.style.width = '0%';
+                        setText(elCpuTrendTitle, 'CPU 使用率趋势');
+                        setText(elCpuTrendMeta, 'N/A');
+                    } else {
+                        setText(elCpuUsageLabel, `${avgUsage}%`);
+                        if (elCpuUsageBar) elCpuUsageBar.style.width = `${avgUsage}%`;
+                        setText(elCpuTrendTitle, 'CPU 使用率趋势');
+                        setText(elCpuTrendMeta, `${avgUsage}%`);
+                    }
+                }
+
+                const tempN = isNA(cpu.temperature) ? null : toFiniteNumber(cpu.temperature);
+                setText(elCpuTemp, tempN === null ? 'N/A' : `${tempN} °C`);
+
+                const clockN = isNA(cpu.clock) ? null : toFiniteNumber(cpu.clock);
+                setText(elCpuClock, clockN === null ? 'N/A' : `${clockN} GHz`);
+
+                const coreN = isNA(cpu.core_count) ? null : toFiniteNumber(cpu.core_count);
+                setText(elCpuCoreCount, coreN === null ? 'N/A' : String(coreN));
+
+                const threadN = isNA(cpu.thread_count) ? null : toFiniteNumber(cpu.thread_count);
+                setText(elCpuThreadCount, threadN === null ? 'N/A' : String(threadN));
+            };
+
+            const renderMem = (mem) => {
+                if (!mem || typeof mem !== 'object') return;
+
+                const totalGb = typeof mem.total === 'number' && Number.isFinite(mem.total) ? mem.total : null;
+                const usedGb = typeof mem.used === 'number' && Number.isFinite(mem.used) ? mem.used : null;
+                const availGb = typeof mem.available === 'number' && Number.isFinite(mem.available) ? mem.available : null;
+
+                setText(elMemTotal, totalGb === null ? 'N/A' : `${totalGb} GB`);
+                setText(elMemAvailable, availGb === null ? 'N/A' : `${availGb} GB`);
+                setText(elMemUsed, usedGb === null ? 'N/A' : String(usedGb));
+
+                const typeText = isNA(mem.type) ? 'N/A' : String(mem.type);
+                setText(elMemType, typeText);
+
+                const speedN = isNA(mem.speed) ? null : toFiniteNumber(mem.speed);
+                setText(elMemSpeed, speedN === null ? 'N/A' : `${speedN} MHz`);
+                setText(elMemName, typeText !== 'N/A' && speedN !== null ? `${typeText} ${speedN}` : 'N/A');
+
+                if (totalGb === null || usedGb === null || availGb === null || totalGb <= 0) {
+                    memUsageSamples.splice(0, memUsageSamples.length);
+                    memTrendChart.setSeries([]);
+                    setText(elMemUsageLabel, 'N/A');
+                    if (elMemUsageBar) elMemUsageBar.style.width = '0%';
+                    setText(elMemTrendTitle, '内存 使用率趋势');
+                    return;
+                }
+
+                const usagePct = clamp((usedGb / totalGb) * 100, 0, 100);
+                addMemUsageSample(usagePct);
+                const avg = calcMemAvgUsage();
+                const avgUsage = avg === null ? null : clamp(Math.round(avg), 0, 100);
+                memTrendChart.setSeries(memUsageSamples);
+                if (avgUsage === null) {
+                    setText(elMemUsageLabel, 'N/A');
+                    if (elMemUsageBar) elMemUsageBar.style.width = '0%';
+                } else {
+                    setText(elMemUsageLabel, `${avgUsage}%`);
+                    if (elMemUsageBar) elMemUsageBar.style.width = `${avgUsage}%`;
+                }
+                setText(elMemTrendTitle, '内存 使用率趋势');
+            };
+
+            const makeWsUrl = () => {
+                const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                return `${proto}//${location.host}/ws/sysinfo`;
+            };
+
+            let ws = null;
+            let reconnectTimer = null;
+            let heartbeatTimer = null;
+            let reconnectAttempt = 0;
+
+            const stopTimers = () => {
+                if (reconnectTimer) {
+                    clearTimeout(reconnectTimer);
+                    reconnectTimer = null;
+                }
+                if (heartbeatTimer) {
+                    clearInterval(heartbeatTimer);
+                    heartbeatTimer = null;
+                }
+            };
+
+            const scheduleReconnect = () => {
+                stopTimers();
+                reconnectAttempt += 1;
+                const delay = Math.min(8000, 400 + reconnectAttempt * 350);
+                setWsStatus(`连接断开，正在重连（第 ${reconnectAttempt} 次）`);
+                reconnectTimer = setTimeout(connect, delay);
+            };
+
+            const connect = () => {
+                stopTimers();
+                setWsStatus(reconnectAttempt ? `连接中（第 ${reconnectAttempt + 1} 次）` : '连接中');
+                try {
+                    ws = new WebSocket(makeWsUrl());
+                } catch {
+                    scheduleReconnect();
+                    return;
+                }
+
+                ws.addEventListener('open', () => {
+                    reconnectAttempt = 0;
+                    setWsStatus('已连接');
+                    heartbeatTimer = setInterval(() => {
+                        if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                        try {
+                            ws.send('ping');
+                        } catch {
+                        }
+                    }, 25000);
+                });
+
+                ws.addEventListener('message', (ev) => {
+                    let data = null;
+                    try {
+                        data = JSON.parse(ev.data);
+                    } catch {
+                        return;
+                    }
+                    if (!data || typeof data !== 'object') return;
+                    renderCpu(data.cpu);
+                    renderMem(data.mem);
+                    try {
+                        const t = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+                        setWsStatus(`数据已更新（${t}）`);
+                    } catch {
+                        setWsStatus('数据已更新');
+                    }
+                });
+
+                ws.addEventListener('close', () => scheduleReconnect());
+                ws.addEventListener('error', () => scheduleReconnect());
+            };
+
+            connect();
+            window.addEventListener('beforeunload', () => {
+                stopTimers();
+                try {
+                    ws?.close();
+                } catch {
+                }
+            });
         })();
     </script>
 </body>

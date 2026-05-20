@@ -219,11 +219,13 @@ def _get_cpu_temperature_windows_acpi() -> float | None:
     return None
 
 
-def _get_cpu_clock_mhz() -> int:
+def _get_cpu_clock_ghz() -> float:
     f = psutil.cpu_freq()
     if f is not None and f.current:
         try:
-            return int(round(float(f.current)))
+            mhz = float(f.current)
+            if mhz > 0:
+                return round(mhz / 1000.0, 2)
         except Exception:
             pass
 
@@ -233,11 +235,11 @@ def _get_cpu_clock_mhz() -> int:
             try:
                 khz = float(v.strip())
                 if khz > 0:
-                    return int(round(khz / 1000.0))
+                    return round((khz / 1000.0) / 1000.0, 2)
             except Exception:
                 pass
 
-    return 0
+    return 0.0
 
 
 class CPUtop:
@@ -250,7 +252,7 @@ class CPUtop:
         except Exception:
             usage = NA
 
-        clock = _get_cpu_clock_mhz()
+        clock = _get_cpu_clock_ghz()
         if clock <= 0:
             clock = NA
 
@@ -258,7 +260,7 @@ class CPUtop:
         if not math.isfinite(temperature):
             temperature = NA
         else:
-            temperature = round(temperature, 2)
+            temperature = round(temperature, 1)
 
         core_count = int(psutil.cpu_count(logical=False) or 0)
         if core_count <= 0:
