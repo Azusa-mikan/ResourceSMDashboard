@@ -1166,7 +1166,7 @@
 
                 const speedN = isNA(mem.speed) ? null : toFiniteNumber(mem.speed);
                 setText(elMemSpeed, speedN === null ? 'N/A' : `${speedN} MHz`);
-                setText(elMemName, typeText !== 'N/A' && speedN !== null ? `${typeText} ${speedN}` : 'N/A');
+                setText(elMemName, typeText !== 'N/A' && speedN !== null ? `${typeText} ${speedN} MHz` : 'N/A');
 
                 if (totalGb === null || usedGb === null || availGb === null || totalGb <= 0) {
                     memUsageSamples.splice(0, memUsageSamples.length);
