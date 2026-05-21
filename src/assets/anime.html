@@ -1100,12 +1100,22 @@
                 paddingY: 14,
             });
 
-            const renderCpu = (cpu) => {
+            const renderCpuStatic = (cpu) => {
                 if (!cpu || typeof cpu !== 'object') return;
 
                 if (typeof cpu.name === 'string' && cpu.name.trim()) {
                     setText(elCpuName, cpu.name.trim());
                 }
+
+                const coreN = isNA(cpu.core_count) ? null : toFiniteNumber(cpu.core_count);
+                setText(elCpuCoreCount, coreN === null ? 'N/A' : String(coreN));
+
+                const threadN = isNA(cpu.thread_count) ? null : toFiniteNumber(cpu.thread_count);
+                setText(elCpuThreadCount, threadN === null ? 'N/A' : String(threadN));
+            };
+
+            const renderCpuDynamic = (cpu) => {
+                if (!cpu || typeof cpu !== 'object') return;
 
                 const usageN = isNA(cpu.usage) ? null : toFiniteNumber(cpu.usage);
                 if (usageN === null) {
@@ -1142,15 +1152,20 @@
 
                 const clockN = isNA(cpu.clock) ? null : toFiniteNumber(cpu.clock);
                 setText(elCpuClock, clockN === null ? 'N/A' : `${clockN} GHz`);
-
-                const coreN = isNA(cpu.core_count) ? null : toFiniteNumber(cpu.core_count);
-                setText(elCpuCoreCount, coreN === null ? 'N/A' : String(coreN));
-
-                const threadN = isNA(cpu.thread_count) ? null : toFiniteNumber(cpu.thread_count);
-                setText(elCpuThreadCount, threadN === null ? 'N/A' : String(threadN));
             };
 
-            const renderMem = (mem) => {
+            const renderMemStatic = (mem) => {
+                if (!mem || typeof mem !== 'object') return;
+
+                const typeText = isNA(mem.type) ? 'N/A' : String(mem.type);
+                setText(elMemType, typeText);
+
+                const speedN = isNA(mem.speed) ? null : toFiniteNumber(mem.speed);
+                setText(elMemSpeed, speedN === null ? 'N/A' : `${speedN} MHz`);
+                setText(elMemName, typeText !== 'N/A' && speedN !== null ? `${typeText} ${speedN} MHz` : 'N/A');
+            };
+
+            const renderMemDynamic = (mem) => {
                 if (!mem || typeof mem !== 'object') return;
 
                 const totalGb = typeof mem.total === 'number' && Number.isFinite(mem.total) ? mem.total : null;
@@ -1160,13 +1175,6 @@
                 setText(elMemTotal, totalGb === null ? 'N/A' : `${totalGb} GB`);
                 setText(elMemAvailable, availGb === null ? 'N/A' : `${availGb} GB`);
                 setText(elMemUsed, usedGb === null ? 'N/A' : String(usedGb));
-
-                const typeText = isNA(mem.type) ? 'N/A' : String(mem.type);
-                setText(elMemType, typeText);
-
-                const speedN = isNA(mem.speed) ? null : toFiniteNumber(mem.speed);
-                setText(elMemSpeed, speedN === null ? 'N/A' : `${speedN} MHz`);
-                setText(elMemName, typeText !== 'N/A' && speedN !== null ? `${typeText} ${speedN} MHz` : 'N/A');
 
                 if (totalGb === null || usedGb === null || availGb === null || totalGb <= 0) {
                     memUsageSamples.splice(0, memUsageSamples.length);
@@ -1201,6 +1209,18 @@
             let reconnectTimer = null;
             let heartbeatTimer = null;
             let reconnectAttempt = 0;
+
+            const fetchStaticSysinfo = async () => {
+                try {
+                    const resp = await fetch('/sysinfo', { cache: 'no-store' });
+                    if (!resp.ok) return;
+                    const data = await resp.json();
+                    if (!data || typeof data !== 'object') return;
+                    renderCpuStatic(data.cpu);
+                    renderMemStatic(data.mem);
+                } catch {
+                }
+            };
 
             const stopTimers = () => {
                 if (reconnectTimer) {
@@ -1251,8 +1271,8 @@
                         return;
                     }
                     if (!data || typeof data !== 'object') return;
-                    renderCpu(data.cpu);
-                    renderMem(data.mem);
+                    renderCpuDynamic(data.cpu);
+                    renderMemDynamic(data.mem);
                     try {
                         const t = new Date().toLocaleTimeString('zh-CN', { hour12: false });
                         setWsStatus(`数据已更新（${t}）`);
@@ -1265,6 +1285,7 @@
                 ws.addEventListener('error', () => scheduleReconnect());
             };
 
+            fetchStaticSysinfo();
             connect();
             window.addEventListener('beforeunload', () => {
                 stopTimers();

@@ -1,5 +1,5 @@
 from asyncio import Queue
 
-from src.util import Systeminfo
+from src.util.sysdataclass import DynamicSysteminfo
 
-sysque: Queue[Systeminfo] = Queue(maxsize=1)
+sysque: Queue[DynamicSysteminfo] = Queue(maxsize=1)

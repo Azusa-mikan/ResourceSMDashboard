@@ -6,7 +6,7 @@ from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 
 from src.websocket import ws
-from src.util.runner import queue_runner
+from src.util.runner import queue_runner, get_static_sysinfo
 
 @asynccontextmanager
 async def custom_lifespan(app: FastAPI):
@@ -23,6 +23,24 @@ temp = Jinja2Templates(
 )
 app.include_router(ws)
 
+def static_sysinfo_to_dict():
+    data = get_static_sysinfo()
+    cpu = {
+        "name": data.cpu.name,
+        "core_count": data.cpu.core_count,
+        "thread_count": data.cpu.thread_count,
+    }
+    mem = {
+        "type": data.mem.type,
+        "speed": data.mem.speed,
+    }
+    return {
+        "cpu": cpu,
+        "mem": mem,
+    }
+
+static_sysinfo_dict = static_sysinfo_to_dict()
+
 @app.get("/")
 async def index(request: Request):
     return temp.TemplateResponse(
@@ -32,3 +50,7 @@ async def index(request: Request):
             "title": "ResourceSMDashboard"
         }
     )
+
+@app.get("/sysinfo")
+async def query_sysinfo():
+    return static_sysinfo_dict

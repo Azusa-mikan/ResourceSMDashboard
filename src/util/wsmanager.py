@@ -2,23 +2,18 @@ import asyncio
 
 from fastapi import WebSocket
 from src.util.databus import sysque
-from src.util import Systeminfo
+from src.util.sysdataclass import DynamicSysteminfo
 
-def payload_json(sysinfo: Systeminfo):
+def payload_json(sysinfo: DynamicSysteminfo):
     cpu = {
-        "name": sysinfo.cpu.name,
         "usage": sysinfo.cpu.usage,
         "clock": sysinfo.cpu.clock,
         "temperature": sysinfo.cpu.temperature,
-        "core_count": sysinfo.cpu.core_count,
-        "thread_count": sysinfo.cpu.thread_count,
     }
     mem = {
         "total": sysinfo.mem.total,
         "available": sysinfo.mem.available,
         "used": sysinfo.mem.used,
-        "type": sysinfo.mem.type,
-        "speed": sysinfo.mem.speed,
     }
     return {
         "cpu": cpu,

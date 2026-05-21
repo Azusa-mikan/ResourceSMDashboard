@@ -10,7 +10,8 @@ import shutil
 import psutil
 from nvitop import NA
 
-from src.util import CPUinfo
+from src.util import CPU
+from src.util.sysdataclass import DynamiCPUinfo, StatiCPUinfo
 
 
 def _clamp_int(value: float, min_value: int, max_value: int) -> int:
@@ -242,39 +243,43 @@ def _get_cpu_clock_ghz() -> float:
     return 0.0
 
 
-class CPUtop:
+class CPUtop(CPU):
     def __init__(self) -> None:
         pass
 
-    def get_cpu_info(self) -> CPUinfo:
+    def get_dynamic_cpu_info(self) -> DynamiCPUinfo:
         try:
             usage = _clamp_int(psutil.cpu_percent(interval=0.12), 0, 100)
         except Exception:
             usage = NA
-
+        
         clock = _get_cpu_clock_ghz()
         if clock <= 0:
             clock = NA
-
+        
         temperature = float(_get_cpu_temperature_celsius())
         if not math.isfinite(temperature):
             temperature = NA
         else:
             temperature = round(temperature, 1)
-
-        core_count = int(psutil.cpu_count(logical=False) or 0)
-        if core_count <= 0:
-            core_count = NA
-
-        thread_count = int(psutil.cpu_count(logical=True) or 0)
-        if thread_count <= 0:
-            thread_count = NA
-
-        return CPUinfo(
-            name=_get_cpu_name(),
+        
+        return DynamiCPUinfo(
             usage=usage,
             clock=clock,
             temperature=temperature,
+        )
+
+    def get_static_cpu_info(self) -> StatiCPUinfo:
+        core_count = int(psutil.cpu_count(logical=False) or 0)
+        if core_count <= 0:
+            core_count = NA
+        
+        thread_count = int(psutil.cpu_count(logical=True) or 0)
+        if thread_count <= 0:
+            thread_count = NA
+        
+        return StatiCPUinfo(
+            name=_get_cpu_name(),
             core_count=core_count,
             thread_count=thread_count,
         )

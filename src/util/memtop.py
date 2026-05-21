@@ -6,7 +6,8 @@ import psutil
 
 from nvitop import NA
 
-from src.util import MEMinfo
+from src.util import Memory
+from src.util.sysdataclass import DynamicMEMinfo, StaticMEMinfo
 
 MEM_TYPE: dict[int, str]  = {
     18: "SDRAM",
@@ -84,16 +85,23 @@ def _parse_dmidecode_memory_type_and_speed(text: str):
     return hw_type, hw_speed
 
 
-class MEMtop:
+class MEMtop(Memory):
     def __init__(self) -> None:
         pass
 
-    def get_mem_info(self):
+    def get_dynamic_mem_info(self) -> DynamicMEMinfo:
         vm = psutil.virtual_memory()
         total_gb = round((vm.total / (1024**3)), 1)
         avail_gb = round((vm.available / (1024**3)), 1)
         used_gb = round((total_gb - avail_gb), 1)
 
+        return DynamicMEMinfo(
+            total=total_gb,
+            available=avail_gb,
+            used=used_gb,
+        )
+
+    def get_static_mem_info(self) -> StaticMEMinfo:
         hw_type = NA
         hw_speed = NA
 
@@ -127,10 +135,7 @@ class MEMtop:
         except Exception:
             pass
 
-        return MEMinfo(
-            total=total_gb,
-            available=avail_gb,
-            used=used_gb,
+        return StaticMEMinfo(
             type=hw_type,
             speed=hw_speed,
         )
