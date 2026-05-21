@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
 
 from src.websocket import ws
@@ -17,9 +18,10 @@ async def custom_lifespan(app: FastAPI):
         t.cancel()
         await t
 
+assets_path = Path(__file__).parent / "assets"
 app = FastAPI(lifespan=custom_lifespan)
 temp = Jinja2Templates(
-    directory=(Path(__file__).parent / "assets")
+    directory=assets_path
 )
 app.include_router(ws)
 
@@ -45,10 +47,17 @@ static_sysinfo_dict = static_sysinfo_to_dict()
 async def index(request: Request):
     return temp.TemplateResponse(
         request=request,
-        name="anime.html",
+        name="index.html",
         context={
             "title": "ResourceSMDashboard"
         }
+    )
+
+@app.get("/assets/css")
+async def index_css():
+    return FileResponse(
+        path=(assets_path / "anime.css"),
+        media_type="text/css",
     )
 
 @app.get("/sysinfo")
